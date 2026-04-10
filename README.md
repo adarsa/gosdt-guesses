@@ -3,6 +3,8 @@
 [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 ![example workflow](https://github.com/ubc-systopia/gosdt-guesses/actions/workflows/main.yml/badge.svg)
 
+This repository is a fork of the upstream `gosdt` Python package and extends it with an R-native package scaffold (`r/gosdt`) so GOSDT can be built and used from R without Python.
+
 **This project is the cannonical implementation of the following papers**:
 - McTavish, H., Zhong, C., Achermann, R., Karimalis, I., Chen, J., Rudin, C., & Seltzer, M. (2022). Fast Sparse Decision Tree Optimization via Reference Ensembles. Proceedings of the AAAI Conference on Artificial Intelligence, 36(9), 9604-9613. https://doi.org/10.1609/aaai.v36i9.21194
 - Jimmy Lin, Chudi Zhong, Diane Hu, Cynthia Rudin, and Margo Seltzer. 2020. Generalized and scalable optimal sparse decision trees. In Proceedings of the 37th International Conference on Machine Learning (ICML'20), Vol. 119. JMLR.org, Article 571, 6150–6160.
@@ -28,6 +30,8 @@ This work builds on a number of innovations for scalable construction of optimal
 - [How to build the project](#how-to-build-the-project)
 - [Project Versioning](#project-versioning)
 - [Project Structure](#project-structure)
+- [R Extension](#r-extension)
+- [R-native use (no Python)](docs/R_NATIVE.md) — includes `r/gosdt/` scaffold
 - [Debugging](#debugging)
 - [Related Work](#related-work)
 
@@ -41,6 +45,57 @@ pip3 install gosdt
 
 Note: Our x86_64 wheels all use modern ISA extensions such AVX to perform fast bitmap operations. 
 If you're running on an older system where that's not possible, we recommend that you build from source following the [instructions below](#how-to-build-the-project).
+
+For R setup and R-only usage, see:
+- [`docs/R_NATIVE.md`](docs/R_NATIVE.md)
+- [`r/gosdt/README.md`](r/gosdt/README.md)
+
+## R Extension
+
+This fork extends the upstream Python-focused project with an R-native package scaffold in `r/gosdt` (no Python runtime required).
+
+### Quick setup (R-only)
+
+1. Install system dependencies (`gmp`, `tbb`, `pkg-config`, C++20 toolchain).
+2. From repository root, install the local R package:
+
+```bash
+R CMD INSTALL r/gosdt
+```
+
+3. Validate the package loads:
+
+```r
+library(gosdt)
+gosdt_lib_version()
+```
+
+### Example usage in R (building a tree)
+
+The current `r/gosdt` package in this repository is an initial scaffold and does not yet expose the full tree-training wrapper. The intended usage is:
+
+```r
+# planned high-level flow once wrappers are finalized
+library(gosdt)
+
+# 1) Prepare a logical feature matrix and labels
+X <- as.matrix(iris[, 1:4] > apply(iris[, 1:4], 2, median))
+y <- iris$Species
+
+# 2) Fit an optimal sparse decision tree
+fit <- gosdt_fit(
+  X = X,
+  y = y,
+  regularization = 0.05,
+  depth_budget = 3
+)
+
+# 3) Inspect and predict
+fit$model_json
+predict(fit, X)
+```
+
+Until that API is wired, use `docs/R_NATIVE.md` and `r/gosdt/README.md` for implementation status and setup details.
 
 ## Configuration
 

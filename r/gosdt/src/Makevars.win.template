@@ -1,0 +1,14 @@
+# Template for Windows (Rtools / MinGW-w64). Copy to Makevars.win and fix paths.
+# The libgosdt path assumes this package lives at <repo>/r/gosdt (adjust if needed).
+# Paths are relative to this package's src/ directory.
+LIBGOSDT_DIR = ../../../src/libgosdt
+PKG_CPPFLAGS = -I$(LIBGOSDT_DIR)/include -I../inst/include
+PKG_CXXFLAGS = -std=gnu++20
+# TODO: set -I/-L to MinGW-compatible GMP and TBB; order may matter.
+PKG_LIBS = -lgmp -ltbb12 -ltbbmalloc
+CXX_STD = CXX20
+
+# On Unix, configure creates symlinks gosdt_iface_*.cpp in src/. On Windows,
+# copy or link those sources into src/ (same names) so R picks up all .cpp files,
+# then remove this $(error) line.
+$(error Edit src/Makevars.win — see r/gosdt/README.md and docs/R_NATIVE.md)

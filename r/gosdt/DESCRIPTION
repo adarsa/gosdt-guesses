@@ -1,0 +1,22 @@
+Package: gosdt
+Type: Package
+Title: General Optimal Sparse Decision Trees (R Native Bindings)
+Version: 0.0.1
+Authors@R: c(person("GOSDT", "Contributors", role = c("aut", "cph"), comment = "C++ implementation: see upstream LICENSE"), person("Placeholder", "Maintainer", role = c("cre", "ctb"), email = "maintainer@example.com", comment = "Replace with your name"))
+Author: GOSDT Contributors [aut, cph] (C++ core); Placeholder Maintainer [cre, ctb]
+Maintainer: Placeholder Maintainer <maintainer@example.com>
+Description: Experimental R bindings to the GOSDT optimal sparse decision tree
+    solver. This package compiles the C++ core from the enclosing
+    'gosdt-guesses' repository and does not use Python. The high-level R API
+    is still a stub; see README.md in this directory.
+License: BSD_3_clause + file LICENSE
+Encoding: UTF-8
+SystemRequirements: C++20, GNU GMP, Intel oneTBB, pkg-config (Unix). Windows
+    requires a manual 'src/Makevars.win' (see README.md).
+URL: https://github.com/ubc-systopia/gosdt-guesses
+BugReports: https://github.com/ubc-systopia/gosdt-guesses/issues
+Depends: R (>= 4.2.0)
+Imports: Rcpp (>= 1.0.11)
+LinkingTo: Rcpp
+Suggests: testthat (>= 3.0.0)
+Config/testthat/edition: 3

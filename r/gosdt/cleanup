@@ -1,0 +1,2 @@
+#!/usr/bin/env sh
+rm -f src/Makevars src/libgosdt_objs.mk src/gosdt_iface_*.cpp

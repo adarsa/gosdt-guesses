@@ -1,0 +1,66 @@
+#!/usr/bin/env sh
+# Generate src/Makevars and src/libgosdt_objs.mk for this monorepo layout:
+#   <repo>/r/gosdt/          <- this package
+#   <repo>/src/libgosdt/     <- C++ core
+set -e
+
+PKG_ROOT="$(CDPATH= cd -- "$(dirname "$0")" && pwd)"
+REPO_ROOT="$(CDPATH= cd -- "$PKG_ROOT/../.." && pwd)"
+LIBGOSDT_DIR="$REPO_ROOT/src/libgosdt"
+
+if [ ! -f "$LIBGOSDT_DIR/include/gosdt.hpp" ]; then
+  echo "Cannot find libgosdt at:" >&2
+  echo "  $LIBGOSDT_DIR/include/gosdt.hpp" >&2
+  echo "This R package must live at <repository>/r/gosdt with the C++ tree at <repository>/src/libgosdt." >&2
+  exit 1
+fi
+
+if ! command -v pkg-config >/dev/null 2>&1; then
+  echo "ERROR: pkg-config is required to locate GMP and TBB." >&2
+  exit 1
+fi
+
+if ! pkg-config --exists gmp; then
+  echo "ERROR: GMP development package not found (pkg-config module 'gmp')." >&2
+  echo "  Debian/Ubuntu: sudo apt install libgmp-dev" >&2
+  echo "  Fedora/RHEL:   sudo dnf install gmp-devel" >&2
+  echo "  macOS:         brew install gmp" >&2
+  exit 1
+fi
+
+if ! pkg-config --exists tbb; then
+  echo "ERROR: Intel oneTBB development package not found (pkg-config module 'tbb')." >&2
+  echo "  Debian/Ubuntu: sudo apt install libtbb-dev" >&2
+  echo "  Fedora/RHEL:   sudo dnf install tbb-devel" >&2
+  echo "  macOS:         brew install tbb" >&2
+  exit 1
+fi
+
+GMP_CFLAGS=$(pkg-config --cflags gmp)
+GMP_LIBS=$(pkg-config --libs gmp)
+TBB_CFLAGS=$(pkg-config --cflags tbb)
+# Link tbbmalloc as well (CMakeLists.txt links TBB::tbbmalloc); avoids missing
+# scalable_free at dyn.load time.
+TBB_LIBS="$(pkg-config --libs tbb) -ltbbmalloc"
+
+# R's package build collects OBJECTS from *.cpp in src/ and may ignore a custom
+# OBJECTS list in Makevars. Symlink each libgosdt translation unit into src/ so
+# the default rules compile and link everything.
+SRC_DIR="$PKG_ROOT/src"
+cd "$SRC_DIR"
+rm -f gosdt_iface_*.cpp libgosdt_objs.mk
+i=0
+# shellcheck disable=SC2044
+for f in $(find "$LIBGOSDT_DIR/src" -name '*.cpp' -print | LC_ALL=C sort); do
+  ln -sf "$f" "gosdt_iface_${i}.cpp"
+  i=$((i + 1))
+done
+
+cat >"$SRC_DIR/Makevars" <<EOF
+LIBGOSDT_DIR = $LIBGOSDT_DIR
+PKG_CPPFLAGS = -I\$(LIBGOSDT_DIR)/include -I../inst/include $GMP_CFLAGS $TBB_CFLAGS
+CXX_STD = CXX20
+PKG_LIBS = $GMP_LIBS $TBB_LIBS
+EOF
+
+exit 0

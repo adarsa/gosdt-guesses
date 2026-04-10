@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+# Intentionally minimal: Windows builds use a hand-written src/Makevars.win.
+# Start from src/Makevars.win.template (see r/gosdt/README.md).
+exit 0

@@ -161,3 +161,6 @@ Thumbs.db
 
 # Cmake files
 compile_commands.json
+
+# R CMD check output (r/gosdt)
+gosdt.Rcheck/

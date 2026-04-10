@@ -1,0 +1,6 @@
+src/Makevars
+src/libgosdt_objs.mk
+src/gosdt_iface_*.cpp
+*.o
+*.so
+*.dll

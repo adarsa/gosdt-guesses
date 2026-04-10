@@ -1,0 +1,3 @@
+useDynLib(gosdt, .registration = TRUE)
+importFrom(Rcpp, sourceCpp)
+export(gosdt_lib_version)
